@@ -2,74 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>WebGL</title>
   <script src="../tools/gl-matrix.min.js"></script>
   <script src="../tools/webglTools.js"></script>
+  
+  
+  
+  <!--  VERTEX SHADER (for each vertex) called first-->
   <script id="shader-vs" type="x-shader/x-vertex">
-    attribute vec3 aVertexPosition;
-    attribute vec4 aColor;
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
-    varying vec4 vColor;
+    // Those variables are sent from the JS code
 
     void main(void) {
-      vColor = aColor;
-      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+      gl_Position = null;
     }
   </script>
+  
+  
+  
+  <!--  FRAGMENT SHADER (for each fragment = pixel of the canvas) called second-->
   <script id="shader-fs" type="x-shader/x-fragment">
+    
     #ifdef GL_ES
-        precision highp float;
+    precision highp float;// high precision is set
     #endif
-    varying vec4 vColor;
 
     void main(void) {
       gl_FragColor = vColor;
     }
   </script>
-  <script>
-    // Pointers on buffers
-    let vertexBuffer = null;
-    let indexBuffer = null;
-    let colorBuffer = null;
-
-    // Corresponding JS arrays
-    let indices = [];
-    let vertices = [];
-    let colors = [];
-
-    // Transform matrix
-    let mvMatrix = mat4.create(); // Model-view matrix
-    let pMatrix = mat4.create();  // Projection matrix
-
-    // Bridges between CPU and GPU
-    function initShaderParameters(prg) {
-
-    }
-
-    // Scene initialization
-    function initBuffers() {
-
-    }
-
-    // Rerender scene
-    function drawScene() {
-
-    }
-
-    // Entrypoint
-    function initWebGL() {
-      glContext = getGLContext('webgl-canvas');
-      initProgram();
-      initBuffers();
-      renderLoop();
-    }
-
-  </script>
+  
+  
+  
+  <!--  JS SCRIPT-->
+  <script src="main.js"></script>
 </head>
+
+
+
+<!--HTML-->
 <body onload="initWebGL()">
-  <h1>WebGL test</h1>
-  <canvas id="webgl-canvas" width="500", height="500">
+  <h1>01: Hello WebGL</h1>
+  <canvas id="webgl-canvas" width="500" height="500">
     HTML5 is not supported
   </canvas>
 </body>

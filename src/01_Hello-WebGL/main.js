@@ -56,6 +56,7 @@ function drawScene() {
   {
     // Background color
     glContext.clearColor(0.9, 0.9, 0.9, 1.0);
+    glContext.clearColor(1, 1, 1, 1.0);
     // Render polygones in their depth order (Z-buffer)
     // An alternative would be the declaration order
     glContext.enable(glContext.DEPTH_TEST);
