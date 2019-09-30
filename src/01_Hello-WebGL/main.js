@@ -1,3 +1,4 @@
+
 // Pointers on buffers
 let vertexBuffer = null;
 let colorBuffer = null;

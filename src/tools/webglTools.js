@@ -1,4 +1,4 @@
-var glContext = null;
+// var glContext = null;
 var c_width = 0;
 var c_height = 0;
 var prg = null;

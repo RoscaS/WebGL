@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="../tools/gl-matrix.min.js"></script>
+  <script src="../tools/webglTools.js"></script>
+  
+  <!--  VERTEX SHADER (for each vertex) called first-->
+  <script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec4 aColor;
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    varying vec4 vColor;
+    void main(void) {
+      vColor = aColor;
+      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    }
+      </script>
+  <script id="shader-fs" type="x-shader/x-fragment">
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+    varying vec4 vColor;
+    void main(void) {
+      gl_FragColor = vColor;
+    }
+  </script>
+  
+  <!--  JS SCRIPT-->
+  <script src="main.js"></script>
+</head>
+<body onload="initWebGL()">
+  <h1>01: Hello WebGL</h1>
+  <canvas id="webgl-canvas" width="500" height="500">
+    HTML5 is not supported
+  </canvas>
+</body>
+</html>
