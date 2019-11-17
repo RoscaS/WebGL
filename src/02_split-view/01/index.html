@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="webgl-utils.js"></script>
+  <script src="m4.js"></script>
+  <script src="primitives.js"></script>
+  
+  <!--  VERTEX SHADER (for each vertex) called first-->
+  <script id="shader-vs" type="x-shader/x-vertex">
+    
+    attribute vec4 a_position;
+    attribute vec4 a_color;
+
+    uniform mat4 u_matrix;
+
+    varying vec4 v_color;
+
+    void main() {
+      // Multiply the position by the matrix.
+      gl_Position = u_matrix * a_position;
+  
+      // Pass the vertex color to the fragment shader.
+      v_color = a_color;
+    }
+    
+  </script>
+  
+  <!--  FRAGMENT SHADER (for each fragment = pixel of the canvas) called second-->
+  <script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    // Passed in from the vertex shader.
+    varying vec4 v_color;
+
+    void main() {
+      gl_FragColor = v_color;
+    }
+  </script>
+  
+  <!--  JS SCRIPT-->
+</head>
+<body>
+  <h1>02: Split view</h1>
+  <canvas id="webgl-canvas" width="1000" height="500">
+    HTML5 is not supported
+  </canvas>
+  <script src="main.js"></script>
+</body>
+</html>

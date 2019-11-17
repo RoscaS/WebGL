@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SplitView tests</title>
+  <script src="ui.js"></script>
+  <script src="helpers.js"></script>
+  <script src="shaders.js"></script>
+  <script src="matrix.js"></script>
+  <script src="geometry.js"></script>
+  <script src="main.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+    
+    .title {
+      margin-left: 30px;
+    }
+
+    #scenes {
+      margin: 10px;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      display: block;
+    }
+
+    .item {
+      display: inline-block;
+      margin: 20px;
+      box-shadow: 11px 7px 27px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    .view {
+      width: 500px;
+      height: 500px;
+    }
+    
+    .uiContainer {
+      margin: 30px 30px;
+    }
+    
+  </style>
+</head>
+
+<body onload="new Project()">
+
+  <h1 class="title">Split view</h1>
+  <canvas id="canvas"></canvas>
+  <div id="scenes"></div>
+  
+  <div class="uiContainer">
+    <div id="ui"></div>
+  </div>
+
+</body>
+</html>

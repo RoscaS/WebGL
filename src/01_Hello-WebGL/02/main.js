@@ -1,17 +1,19 @@
 let vertexBuffer = null;
 let indexBuffer = null;
 let colorBuffer = null;
+
 let indices = [];
+
 let mvMatrix = mat4.create();
 let pMatrix = mat4.create();
 
 function initShaderParameters(prg) {
-  prg.vertexPositionAttribute = glContext.getAttribLocation(prg,
-    'aVertexPosition',
-  );
+  prg.vertexPositionAttribute = glContext.getAttribLocation(prg, 'aVertexPosition');
   glContext.enableVertexAttribArray(prg.vertexPositionAttribute);
+
   prg.colorAttribute = glContext.getAttribLocation(prg, 'aColor');
   glContext.enableVertexAttribArray(prg.colorAttribute);
+
   prg.pMatrixUniform = glContext.getUniformLocation(prg, 'uPMatrix');
   prg.mvMatrixUniform = glContext.getUniformLocation(prg, 'uMVMatrix');
 }
@@ -42,15 +44,9 @@ function drawScene() {
   vertexBuffer = getVertexBufferWithVertices(vertices);
 
   //
-  colors.push(Math.abs(Math.sin(i)), Math.abs(Math.tan(i * 0.1)),
-    Math.abs(Math.cos(i)), 1.0,
-  );
-  colors.push(Math.abs(Math.sin(i)), Math.abs(Math.cos(i)),
-    Math.abs(Math.sin(i)), 1.0,
-  );
-  colors.push(Math.abs(Math.cos(Math.sin(i))), Math.abs(Math.sin(i)),
-    Math.abs(Math.sin(i * 0.5)), 1.0,
-  );
+  colors.push(Math.abs(Math.sin(i)), Math.abs(Math.tan(i * 0.1)), Math.abs(Math.cos(i)), 1.0,);
+  colors.push(Math.abs(Math.sin(i)), Math.abs(Math.cos(i)), Math.abs(Math.sin(i)), 1.0,);
+  colors.push(Math.abs(Math.cos(Math.sin(i))), Math.abs(Math.sin(i)), Math.abs(Math.sin(i * 0.5)), 1.0,);
 
   colorBuffer = getVertexBufferWithVertices(colors);
 
@@ -61,23 +57,16 @@ function drawScene() {
 
   mat4.identity(mvMatrix);
   mat4.identity(pMatrix);
-
   mat4.perspective(pMatrix, degToRad(60), c_width / c_height, 0.1, 40);
 
   glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
   glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
   glContext.bindBuffer(glContext.ARRAY_BUFFER, vertexBuffer);
-  glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3,
-    glContext.FLOAT, false, 0, 0,
-  );
+  glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0,);
   glContext.bindBuffer(glContext.ARRAY_BUFFER, colorBuffer);
-  glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT,
-    false, 0, 0,
-  );
+  glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0,);
   glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  glContext.drawElements(glContext.TRIANGLE_STRIP, indices.length,
-    glContext.UNSIGNED_SHORT, 0,
-  );
+  glContext.drawElements(glContext.TRIANGLE_STRIP, indices.length, glContext.UNSIGNED_SHORT, 0,);
 }
 
 function initWebGL() {

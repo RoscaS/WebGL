@@ -1,4 +1,3 @@
-
 // Pointers on buffers
 let vertexBuffer = null;
 let colorBuffer = null;
@@ -16,11 +15,13 @@ let pMatrix = mat4.create();  // Projection matrix
 // Bridges between CPU (JS) and GPU (Shaders)
 function initShaderParameters(prg) {
   // Geometry, related to "attribute" type qualifier inside shaders program
-  prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
+  prg.vertexPositionAttribute = glContext.getAttribLocation(prg,
+    'aVertexPosition',
+  );
   glContext.enableVertexAttribArray(prg.vertexPositionAttribute);
 
   // Colors, related to "attribute" type qualifier inside shaders program
-  prg.colorAttribute = glContext.getAttribLocation(prg, "aColor");
+  prg.colorAttribute = glContext.getAttribLocation(prg, 'aColor');
   glContext.enableVertexAttribArray(prg.colorAttribute);
 
   // Transform matrix, related to "uniform" type qualifier inside shader program
@@ -34,8 +35,8 @@ function initShaderParameters(prg) {
 // The data defined here is used inside the Shaders programs.
 function initBuffers() {
   vertices.push(-1.0, -1.0, 0.0); // Bottom left vertex
-  vertices.push( 1.0, -1.0, 0.0); // Bottom right vertex
-  vertices.push( 0.0,  1.0, 0.0); // Top vertex
+  vertices.push(1.0, -1.0, 0.0); // Bottom right vertex
+  vertices.push(0.0, 1.0, 0.0); // Top vertex
 
   colors.push(1.0, 0.0, 0.0, 1.0); // Bottom left corner
   colors.push(0.0, 1.0, 0.0, 1.0); // Bottom right corner
@@ -49,6 +50,7 @@ function initBuffers() {
   vertexBuffer = getVertexBufferWithVertices(vertices);
   colorBuffer = getVertexBufferWithVertices(colors);
   indexBuffer = getIndexBufferWithIndices(indices);
+
 }
 
 // Rerender stage (Five main steps of rendering)
@@ -57,7 +59,7 @@ function drawScene() {
   {
     // Background color
     glContext.clearColor(0.9, 0.9, 0.9, 1.0);
-    glContext.clearColor(1, 1, 1, 1.0);
+    // glContext.clearColor(1, 1, 1, 1.0);
     // Render polygones in their depth order (Z-buffer)
     // An alternative would be the declaration order
     glContext.enable(glContext.DEPTH_TEST);
@@ -80,23 +82,28 @@ function drawScene() {
     glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
   }
 
-
   // c) Define vertices
   {
     // Vertices
     glContext.bindBuffer(glContext.ARRAY_BUFFER, vertexBuffer);
-    glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0);
+    glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3,
+      glContext.FLOAT, false, 0, 0,
+    );
 
     // Related colours
     glContext.bindBuffer(glContext.ARRAY_BUFFER, colorBuffer);
-    glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
+    glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false,
+      0, 0,
+    );
   }
 
   // d) Links between vertice
   glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
   // e) Type of shape declaration
-  glContext.drawElements(glContext.TRIANGLES, indices.length, glContext.UNSIGNED_SHORT, 0);
+  glContext.drawElements(glContext.TRIANGLES, indices.length,
+    glContext.UNSIGNED_SHORT, 0,
+  );
 }
 
 // Entrypoint

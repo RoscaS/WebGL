@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="../tools/gl-matrix.min.js"></script>
+  <script src="../tools/webglTools.js"></script>
+  
+  <!--  VERTEX SHADER (for each vertex) called first-->
+  <script id="shader-vs" type="x-shader/x-vertex">
+    // Those variables are sent from the JS code
+    
+    // Define what a Vertex is
+    attribute vec3 aVertexPosition; // Vertex position (x,y,z)
+    attribute vec4 aColor; // Vertex color
+    
+    // Camera related matrices. Uniform means that all the vortices
+    // will use those two matrices.
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    
+    // Color of the vertex. Varying means that the color will
+    // be set in the FRAGMENT shader after rasterization.
+    varying vec4 vColor;
+
+    // Main is mendatory. This type of shader always returns a value
+    // of `gl_Position` type.
+    void main(void) {
+      // No further computation needed for the color of the vertex
+      vColor = aColor;
+      
+      // Compute vertex position with respect to camera position.
+      // gl_FragColor doesn't need to be declared and is the
+      // value that will be returned by this program.
+      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    }
+  </script>
+  
+  <!--  FRAGMENT SHADER (for each fragment = pixel of the canvas) called second-->
+  <script id="shader-fs" type="x-shader/x-fragment">
+    #ifdef GL_ES // Retro compatibility
+    // Needed by new browsers, define float precision
+    precision highp float; // high precision is set
+    #endif
+    
+    // The value of this variable is sent by the VERTEX shader
+    // trough varying.
+    varying vec4 vColor;
+
+    // Main is mendatory. This type of shader always returns a value
+    // of `gl_FragColor` type.
+    void main(void) {
+      // gl_FragColor doesn't need to be declared and is the
+      // value that will be returned by this program.
+      gl_FragColor = vColor;
+    }
+  </script>
+  
+  <!--  JS SCRIPT-->
+  <script src="main.js"></script>
+</head>
+<body onload="initWebGL()">
+  <h1>01: Hello WebGL</h1>
+  <canvas id="webgl-canvas" width="500" height="500">
+    HTML5 is not supported
+  </canvas>
+</body>
+</html>

@@ -3,26 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
-  <script src="../tools/gl-matrix.min.js"></script>
-  <script src="../tools/webglTools.js"></script>
+  <script src="../../tools/gl-matrix.min.js"></script>
+  <script src="../../tools/webglTools.js"></script>
   
   <!--  VERTEX SHADER (for each vertex) called first-->
   <script id="shader-vs" type="x-shader/x-vertex">
-    attribute vec3 aVertexPosition;
-    attribute vec4 aColor;
+    attribute vec3 aVertexPosition; // Vertex position (x,y,z)
+    attribute vec4 aColor; // Vertex color
+    
     uniform mat4 uMVMatrix;
     uniform mat4 uPMatrix;
+    
     varying vec4 vColor;
+
     void main(void) {
       vColor = aColor;
+      
       gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     }
-      </script>
+  </script>
+  
+  <!--  FRAGMENT SHADER (for each fragment = pixel of the canvas) called second-->
   <script id="shader-fs" type="x-shader/x-fragment">
-    #ifdef GL_ES
-    precision highp float;
+    #ifdef GL_ES // Retro compatibility
+    precision highp float; // high precision is set
     #endif
+    
     varying vec4 vColor;
+
     void main(void) {
       gl_FragColor = vColor;
     }

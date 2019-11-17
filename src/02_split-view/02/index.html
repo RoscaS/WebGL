@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="utils/webgl-utils.js"></script>
+  <script src="utils/m4.js"></script>
+  <script src="utils/primitives.js"></script>
+  <script src="html.js"></script>
+  
+  <script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec4 a_position;
+    attribute vec3 a_normal;
+    
+    uniform mat4 u_matrix;
+    varying vec3 v_color;
+    
+    void main() {
+      // Multiply the position by the matrix.
+      gl_Position = u_matrix * a_position;
+    
+      // Pass the normal as the color to the fragment shader.
+      v_color = a_normal * .5 + .5;
+    }
+  </script>
+  
+  <script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    
+    varying vec3 v_color;
+    
+    void main() {
+      gl_FragColor = vec4(v_color, 1);
+    }
+  </script>
+
+  
+  
+  <style>
+    body {
+      margin: 0;
+    }
+    #content {
+      margin: 10px;
+    }
+    #canvas {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      display: block;
+    }
+    .item {
+      display: inline-block;
+      margin: 20px;
+      /*border: 2px solid black;*/
+      box-shadow: 11px 7px 27px -12px rgba(0,0,0,0.75);
+    }
+    .view {
+      width: 500px;
+      height: 500px;
+    }
+    
+  </style>
+  
+  <!--  JS SCRIPT-->
+</head>
+<body>
+  <h1>02: Split view</h1>
+  <canvas id="canvas"></canvas>
+  <div id="content"></div>
+  
+  <script src="main.js"></script>
+</body>
+</html>

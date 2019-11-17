@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>SplitView tests</title>
+  <script src="helpers.js"></script>
+  <script src="shader-fragment.js"></script>
+  <script src="shader-vertex.js"></script>
+  <script src="matrix.js"></script>
+  <script src="geometry.js"></script>
+  <script src="main.js"></script>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #content {
+      margin: 10px;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      display: block;
+    }
+
+    .item {
+      display: inline-block;
+      margin: 20px;
+      box-shadow: 11px 7px 27px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    .view {
+      width: 500px;
+      height: 500px;
+    }
+    
+  </style>
+</head>
+
+<body onload="new Project()">
+
+  <h1>Split view</h1>
+  <canvas id="canvas"></canvas>
+  <div id="content"></div>
+
+</body>
+</html>
