@@ -26,13 +26,16 @@ class Project {
     let leftOuterEl = createHtmlElement('div', scenesEl, 'item');
     let rightOuterEl = createHtmlElement('div', scenesEl, 'item');
 
-    this.leftElement = createHtmlElement('div', leftOuterEl, 'view');
-    this.rightElement = createHtmlElement('div', rightOuterEl, 'view');
+    this.leftHtmlElement = createHtmlElement('div', leftOuterEl, 'view');
+    this.rightHtmlElement = createHtmlElement('div', rightOuterEl, 'view');
   }
 
   //------------------------------------------------------------------*\
   //							               RENDERING
   //------------------------------------------------------------------*/
+
+  leftFovRad = () => degToRad(this.settings.left_fov);
+  rightFovRad = () => degToRad(this.settings.right_fov);
 
   render = () => {
 
@@ -40,61 +43,34 @@ class Project {
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.enable(this.gl.SCISSOR_TEST);
-
     this.gl.canvas.style.transform = `translateY(${ window.scrollY }px`; // removes parallax effect
-
     this.gl.useProgram(this.program);
+
+    let worldMatrix = this.createWorldMatrix();
+
+    // SCENES
     this.fShape.initBuffers();
+    let leftAspect = this.getSplittedAspectRatio(this.leftHtmlElement);
+    let leftCamera = this.getCameraMatrix(this.getCameraPosition());
+    let leftProjection = this.settings.orthographic
+                         ? this.createOrthographicProjection(leftAspect)
+                         : this.createPerspectiveProjection(this.leftFovRad(), leftAspect, true);
+    this.drawScene(worldMatrix, leftCamera, leftProjection);
 
-    // Compute the camera's matrix using look at.
-    let worldMatrix = m4.yRotation(degToRad(this.settings.rotation));
-    worldMatrix = m4.xRotate(worldMatrix, degToRad(this.settings.rotation));
-    worldMatrix = m4.translate(worldMatrix, -35, -75, -5);
+    let rightAspect = this.getSplittedAspectRatio(this.rightHtmlElement);
+    let rightCamera = this.getCameraMatrix(this.getFixedCameraPosition());
+    let rightProjection = this.createPerspectiveProjection(this.rightFovRad(), rightAspect, false);
+    this.drawScene(worldMatrix, rightCamera, rightProjection);
 
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    let leftAspect = this.setSceneAndGetAspectRatio(this.leftElement);
-    let leftCameraMatrix = this.getCameraMatrix(this.getCameraPosition());
-
-    let leftAngle = degToRad(this.settings.fov);
-    let leftProjectionMatrix = null;
-
-    if (this.settings.orthographic) {
-      leftProjectionMatrix = m4.orthographic(
-        -this.settings.ortho_size * leftAspect,
-        this.settings.ortho_size * leftAspect,
-        -this.settings.ortho_size,
-        this.settings.ortho_size,
-        this.settings.cam_near,
-        this.settings.cam_far,
-      );
-    } else {
-      leftProjectionMatrix = m4.perspective(leftAngle, leftAspect, this.settings.cam_near,
-        this.settings.cam_far,
-      );
-    }
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
-    this.drawScene(worldMatrix, leftCameraMatrix, leftProjectionMatrix);
-    let rightAspect = this.setSceneAndGetAspectRatio(this.rightElement);
-    // let rightCameraMatrix = this.getCameraMatrix([-600, 400, -400]);
-    let rightCameraMatrix = this.getCameraMatrix([-700, 400, -400]);
-    let rightAngle = degToRad(60);
-    let rightProjectionMatrix = m4.perspective(rightAngle, rightAspect, this.settings.near,
-      this.settings.far,
-    );
-    this.drawScene(worldMatrix, rightCameraMatrix, rightProjectionMatrix);
-
-    this.drawCamera(rightCameraMatrix, rightProjectionMatrix, leftCameraMatrix,
-      leftProjectionMatrix,
-    );
-
+    // CAMERA AND FROSTRUM
+    this.injectCamera(rightCamera, rightProjection, leftCamera, leftProjection);
   };
 
   //------------------------------------------------------------------*\
   //							               SCENE
   //------------------------------------------------------------------*/
 
-  setSceneAndGetAspectRatio(htmlElement) {
+  getSplittedAspectRatio(htmlElement) {
     const rect = htmlElement.getBoundingClientRect();
     const width = rect.right - rect.left;
     const height = rect.bottom - rect.top;
@@ -103,8 +79,6 @@ class Project {
 
     this.gl.viewport(left, bottom, width, height);
     this.gl.scissor(left, bottom, width, height);
-    // this.gl.clearColor(1, 1, 1, 1);
-    // this.gl.clearColor(0, 0, 0, 1);
     this.settings.dark ? this.gl.clearColor(0, 0, 0, 1) : this.gl.clearColor(1, 1, 1, 1);
 
     return width / height;
@@ -116,11 +90,40 @@ class Project {
     return m4.lookAt(position, target, up);
   }
 
+  //------------------------------------------------------------------*\
+  //							               MATRICES
+  //------------------------------------------------------------------*/
+
+  createWorldMatrix() {
+    let worldMatrix = m4.yRotation(degToRad(this.settings.rotation));
+    worldMatrix = m4.xRotate(worldMatrix, degToRad(this.settings.rotation));
+    return m4.translate(worldMatrix, -35, -75, -5);
+  }
+
+  createOrthographicProjection(aspectRatio) {
+    return m4.orthographic(
+      -this.settings.ortho_size * aspectRatio,
+      this.settings.ortho_size * aspectRatio,
+      -this.settings.ortho_size,
+      this.settings.ortho_size,
+      this.settings.cam_near,
+      this.settings.cam_far,
+    );
+  }
+
+  createPerspectiveProjection(angle, aspectRatio, isPOV) {
+    let near = isPOV ? this.settings.cam_near : this.settings.near;
+    let far = isPOV ? this.settings.cam_far : this.settings.far;
+    return m4.perspective(angle, aspectRatio, near, far);
+  }
+
   //---------------------------------*\
   //             DRAWING
   //---------------------------------*/
 
   drawScene(worldMatrix, cameraMatrix, projectionMatrix) {
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
     const viewMatrix = m4.inverse(cameraMatrix);
     let matrix = m4.multiply(projectionMatrix, viewMatrix);
     matrix = m4.multiply(matrix, worldMatrix);
@@ -133,10 +136,14 @@ class Project {
     this.gl.drawArrays(primitiveType, offset, count);
   }
 
-  drawCamera(
+  injectCamera(
     sceneB_CameraMatrix, sceneB_ProjectionMatrix, sceneA_CameraMatrix, sceneA_ProjectionMatrix) {
 
-    let color = this.settings.dark ? [1, 1, 1, 1] : [0, 0, 0, 1];
+    this.gl.useProgram(this.programCamera);
+    const black = [1, 1, 1, 1];
+    const white = [0, 0, 0, 1];
+
+    let color = this.settings.dark ? black : white;
     // Make a view matrix from the 2nd camera matrix.
     let viewMatrix = m4.inverse(sceneB_CameraMatrix);
     let matrix = m4.multiply(sceneB_ProjectionMatrix, viewMatrix);
@@ -144,8 +151,6 @@ class Project {
     // use the first's camera's matrix as the matrix to position
     // the camera's representative in the scene
     matrix = m4.multiply(matrix, sceneA_CameraMatrix);
-
-    this.gl.useProgram(this.programCamera);
 
     this.cameraShape.initBuffers(matrix);
     this.gl.uniformMatrix4fv(this.cameraShape.matrixUniformLocation, false, matrix);
@@ -158,6 +163,7 @@ class Project {
 
     // Frustrum
     matrix = m4.multiply(matrix, m4.inverse(sceneA_ProjectionMatrix));
+
     this.frustrumShape.initBuffers(matrix);
     this.gl.uniformMatrix4fv(this.frustrumShape.matrixUniformLocation, false, matrix);
     this.gl.uniform4fv(this.frustrumShape.colorUniformLocations, color);
@@ -173,7 +179,8 @@ class Project {
   initControlValues() {
     this.settings = {
       rotation: 170,
-      fov: 60,
+      left_fov: 60,
+      right_fov: 60,
       dark: true,
       quality: false,
 
@@ -181,7 +188,11 @@ class Project {
       cam_Y: 0,
       cam_Z: -300,
 
-      cam_near: 90,
+      fixed_X: -700,
+      fixed_Y: 400,
+      fixed_Z: -400,
+
+      cam_near: 60,
       cam_far: 550,
 
       orthographic: false,
@@ -216,7 +227,7 @@ class Project {
       },
       {
         type: 'slider',
-        key: 'fov',
+        key: 'left_fov',
         min: 1,
         max: 170,
         change: this.render,
@@ -234,5 +245,9 @@ class Project {
 
   getCameraPosition() {
     return [this.settings.cam_X, this.settings.cam_Y, this.settings.cam_Z];
+  }
+
+  getFixedCameraPosition() {
+    return [this.settings.fixed_X, this.settings.fixed_Y, this.settings.fixed_Z];
   }
 }
