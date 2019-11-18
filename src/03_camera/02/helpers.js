@@ -30,14 +30,14 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
-function resizeCanvasToDisplaySize(canvas, multiplier) {
-  multiplier = multiplier || 1;
-  const width = canvas.clientWidth * multiplier | 0;
-  const height = canvas.clientHeight * multiplier | 0;
+function resizeCanvasToDisplaySize(canvas, callback) {
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
 
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
     canvas.height = height;
+    callback();
     return true;
   }
   return false;
