@@ -3,10 +3,10 @@ class Project {
     this.gl = document.getElementById('canvas').getContext('webgl');
     window.addEventListener('resize', this.render);
 
-    this.program = createShaderProgram(this.gl, vertex, fragment);
-    this.programCamera = createShaderProgram(this.gl, sVertex, sFragment);
+    this.programShape = createShaderProgram(this.gl, vertexA, fragmentA);
+    this.programCamera = createShaderProgram(this.gl, vertexB, fragmentB);
 
-    this.fShape = new FShape(this.gl, this.program);
+    this.fShape = new FShape(this.gl, this.programShape);
     this.cameraShape = new CameraRepr(this.gl, this.programCamera);
     this.frustrumShape = new FrustrumShape(this.gl, this.programCamera);
 
@@ -44,7 +44,7 @@ class Project {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.enable(this.gl.SCISSOR_TEST);
     this.gl.canvas.style.transform = `translateY(${ window.scrollY }px`; // removes parallax effect
-    this.gl.useProgram(this.program);
+    this.gl.useProgram(this.programShape);
 
     let worldMatrix = this.createWorldMatrix();
 
@@ -55,15 +55,15 @@ class Project {
     let leftProjection = this.settings.orthographic
                          ? this.createOrthographicProjection(leftAspect)
                          : this.createPerspectiveProjection(this.leftFovRad(), leftAspect, true);
-    this.drawScene(worldMatrix, leftCamera, leftProjection);
+    this.drawArray(worldMatrix, leftCamera, leftProjection);
 
     let rightAspect = this.getSplittedAspectRatio(this.rightHtmlElement);
     let rightCamera = this.getCameraMatrix(this.getFixedCameraPosition());
     let rightProjection = this.createPerspectiveProjection(this.rightFovRad(), rightAspect, false);
-    this.drawScene(worldMatrix, rightCamera, rightProjection);
+    this.drawArray(worldMatrix, rightCamera, rightProjection);
 
     // CAMERA AND FROSTRUM
-    this.injectCamera(rightCamera, rightProjection, leftCamera, leftProjection);
+    this.drawUniforms(rightCamera, rightProjection, leftCamera, leftProjection);
   };
 
   //------------------------------------------------------------------*\
@@ -121,7 +121,7 @@ class Project {
   //             DRAWING
   //---------------------------------*/
 
-  drawScene(worldMatrix, cameraMatrix, projectionMatrix) {
+  drawArray(worldMatrix, cameraMatrix, projectionMatrix) {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
     const viewMatrix = m4.inverse(cameraMatrix);
@@ -136,34 +136,27 @@ class Project {
     this.gl.drawArrays(primitiveType, offset, count);
   }
 
-  injectCamera(
-    sceneB_CameraMatrix, sceneB_ProjectionMatrix, sceneA_CameraMatrix, sceneA_ProjectionMatrix) {
-
+  drawUniforms(sceneB_cMatrix, sceneB_pMatrix, sceneA_cMatrix, sceneA_pMatrix) {
     this.gl.useProgram(this.programCamera);
-    const black = [1, 1, 1, 1];
-    const white = [0, 0, 0, 1];
+    let color = this.settings.dark ? [1, 1, 1, 1] : [0, 0, 0, 1];
+    let primitiveType = this.gl.LINES;
+    let count = 0;
+    let offset = 0;
 
-    let color = this.settings.dark ? black : white;
-    // Make a view matrix from the 2nd camera matrix.
-    let viewMatrix = m4.inverse(sceneB_CameraMatrix);
-    let matrix = m4.multiply(sceneB_ProjectionMatrix, viewMatrix);
+    let viewMatrix = m4.inverse(sceneB_cMatrix);
+    let matrix = m4.multiply(sceneB_pMatrix, viewMatrix);
 
-    // use the first's camera's matrix as the matrix to position
-    // the camera's representative in the scene
-    matrix = m4.multiply(matrix, sceneA_CameraMatrix);
-
+    // CAMERA
+    matrix = m4.multiply(matrix, sceneA_cMatrix);
     this.cameraShape.initBuffers(matrix);
     this.gl.uniformMatrix4fv(this.cameraShape.matrixUniformLocation, false, matrix);
     this.gl.uniform4fv(this.cameraShape.colorUniformLocations, color);
 
-    let primitiveType = this.gl.LINES;
-    let count = this.cameraShape.indices.length;
-    let offset = 0;
+    count = this.cameraShape.indices.length;
     this.gl.drawElements(primitiveType, count, this.gl.UNSIGNED_SHORT, offset);
 
-    // Frustrum
-    matrix = m4.multiply(matrix, m4.inverse(sceneA_ProjectionMatrix));
-
+    // FRUSTRUM
+    matrix = m4.multiply(matrix, m4.inverse(sceneA_pMatrix));
     this.frustrumShape.initBuffers(matrix);
     this.gl.uniformMatrix4fv(this.frustrumShape.matrixUniformLocation, false, matrix);
     this.gl.uniform4fv(this.frustrumShape.colorUniformLocations, color);

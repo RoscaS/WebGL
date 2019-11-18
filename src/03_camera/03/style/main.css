@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+}
+
+.title {
+    margin-left: 30px;
+}
+
+#scenes {
+    margin: 10px;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    display: block;
+}
+
+#uiCenter {
+    margin-right: 50px;
+    margin-left: 50px;
+}
+
+.item {
+    display: inline-block;
+    margin: 20px;
+    box-shadow: 11px 7px 27px -12px rgba(0, 0, 0, 0.75);
+}
+
+.view {
+    width: 600px;
+    height: 600px;
+}
+
+.uiContainer {
+    display: flex;
+    margin: 30px 30px;
+}
+

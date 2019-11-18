@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------*\
- |*							                  MAIN
+ |*							                  OBJECT
  \*------------------------------------------------------------------*/
-const vertex = `
+const vertexA = `
 attribute vec4 a_position;
 attribute vec4 a_color;
 
@@ -14,7 +14,7 @@ void main() {
 }
 `;
 
-const fragment = `
+const fragmentA = `
 #ifdef GL_ES
   precision highp float; 
 #endif
@@ -27,9 +27,9 @@ void main() {
 `;
 
 /*------------------------------------------------------------------*\
- |*							               SOLID COLOR
+ |*							               CAMERA & FROSTRUM
  \*------------------------------------------------------------------*/
-const sVertex = `
+const vertexB = `
 attribute vec4 a_position;
 uniform mat4 u_matrix;
 
@@ -39,7 +39,7 @@ void main() {
 }
 `;
 
-const sFragment = `
+const fragmentB = `
 #ifdef GL_ES
   precision highp float; 
 #endif
